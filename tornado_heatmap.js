@@ -1,18 +1,12 @@
 var allLayers;
-var v1950sLayer;
-var v1960sLayer;
-var v1970sLayer;
-var v1980sLayer;
-var v1990sLayer;
-var v2000sLayer;
-var v2010sLayer;
+var allTornadoes;
 
 d3.json('/data', response => {
   // console.log(response);
 
-  const allTornadoes = response
-    .map( t => {return { lat: t.Start_Lat, lon: t.Start_Lon }});
-  
+  allTornadoes = response
+    .map(t => { return { lat: t.Start_Lat, lon: t.Start_Lon, year: t.Year } });
+
   allLayers = L.heatLayer(allTornadoes, {
     radius: 15,
     blur: 25
@@ -20,69 +14,6 @@ d3.json('/data', response => {
   allLayers.addTo(myMap);
 
   CurrentLayer = allLayers;
-
-  const v1950s = response
-    .filter( t => t.Year >= 1950 && t.Year < 1960)
-    .map( t => { return { lat: t.Start_Lat, lon: t.Start_Lon }});
-
-  v1950sLayer = L.heatLayer(v1950s, {
-    radius: 15,
-    blur: 25
-  });
-  
-  const v1960s = response
-  .filter( t => t.Year >= 1960 && t.Year < 1970)
-  .map( t => { return { lat: t.Start_Lat, lon: t.Start_Lon }});
-
-  v1960sLayer = L.heatLayer(v1960s, {
-    radius: 15,
-    blur: 25
-  });
-
-  const v1970s = response
-  .filter( t => t.Year >= 1970 && t.Year < 1980)
-  .map( t => { return { lat: t.Start_Lat, lon: t.Start_Lon }});
-
-  v1970sLayer = L.heatLayer(v1970s, {
-    radius: 15,
-    blur: 25
-  });
-
-  const v1980s = response
-  .filter( t => t.Year >= 1980 && t.Year < 1990)
-  .map( t => { return { lat: t.Start_Lat, lon: t.Start_Lon }});
-
-  v1980sLayer = L.heatLayer(v1980s, {
-    radius: 15,
-    blur: 25
-  });
-
-  const v1990s = response
-  .filter( t => t.Year >= 1990 && t.Year < 2000)
-  .map( t => { return { lat: t.Start_Lat, lon: t.Start_Lon }});
-
-  v1990sLayer = L.heatLayer(v1990s, {
-    radius: 15,
-    blur: 25
-  });
-
-  const v2000s = response
-  .filter( t => t.Year >= 2000 && t.Year < 2010)
-  .map( t => { return { lat: t.Start_Lat, lon: t.Start_Lon }});
-
-  v2000sLayer = L.heatLayer(v2000s, {
-    radius: 15,
-    blur: 25
-  })
-
-  const v2010s = response
-  .filter( t => t.Year >= 2010)
-  .map( t => { return { lat: t.Start_Lat, lon: t.Start_Lon }});
-
-  v2010sLayer = L.heatLayer(v2010s, {
-    radius: 15,
-    blur: 25
-  })
 });
 
 var CurrentLayer;
@@ -91,6 +22,33 @@ function ChangeLayer(newLayer) {
   myMap.removeLayer(CurrentLayer);
   CurrentLayer = newLayer;
   CurrentLayer.addTo(myMap);
+};
+
+function TornadoesAll() {
+  var newLayer = L.heatLayer(allTornadoes, {
+    radius: 15,
+    blur: 25
+  });
+  ChangeLayer(newLayer);
+};
+
+function DecadeFilter(input) {
+  var tempData = allTornadoes.filter(t => t.year >= input && t.year < (input + 10));
+  // .map( t => { return { lat: t.Start_Lat, lon: t.Start_Lon }});
+  var newLayer = L.heatLayer(tempData, {
+    radius: 18,
+    blur: 25
+  });
+  ChangeLayer(newLayer);
+};
+
+function YearFilter(input) {
+  var tempData = allTornadoes.filter(t => t.year == input);
+  var newLayer = L.heatLayer(tempData, {
+    radius: 30,
+    blur: 25
+  });
+  ChangeLayer(newLayer);
 };
 
 var streetmap = L.tileLayer("https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}", {
